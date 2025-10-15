@@ -1,0 +1,229 @@
+---
+title: "Prova 2"
+author: "Ana Beatriz"
+date: "2025-09-24"
+output: html_document
+---
+Considere as notas de alunos descritas no vetor numérico nomeado em Notas
+ e os alunos que entregaram os trabalhos descritas no vetor lógico nomeado em Trabalhos:
+```{r}
+#Notas
+##     João    Maria     José      Ana    Pedro    Paula   Carlos  Mariana Fernando    Luiza 
+##       42       85       63       70       65       85       36       89       45       31
+#Trabalhos
+##     João    Maria     José      Ana    Pedro    Paula   Carlos  Mariana Fernando    Luiza 
+##    FALSE     TRUE    FALSE     TRUE    FALSE     TRUE    FALSE     TRUE    FALSE    FALSE
+```
+
+```{r}
+notas <- c(
+  'João' = 42,
+  'Maria' = 85,
+  'José' = 63,
+  'Ana' = 70, 
+  'Pedro' = 65,
+  'Paula' = 85,
+  'Carlos' = 36, 
+  'Mariana' = 89,
+  'Fernando' = 45, 
+  'Luiza' = 31)
+
+trabalhos <- c(
+  'João' = FALSE,
+  'Maria' = TRUE,
+  'José' = FALSE,
+  'Ana' = TRUE, 
+  'Pedro' = FALSE,
+  'Paula' = TRUE,
+  'Carlos' = FALSE, 
+  'Mariana' = TRUE,
+  'Fernando' = FALSE, 
+  'Luiza' = FALSE)
+
+
+```
+
+
+A raiz quadrada da média das notas dos alunos é: 
+```{r}
+round(sqrt(mean(notas)), 4)
+```
+A mediana dos alunos que entregaram o trabalho é: 
+```{r}
+df <- cbind(notas, trabalhos)
+
+entregaram_trabalho <- as.data.frame(subset(df, trabalhos == 1)) 
+
+median(entregaram_trabalho$notas)
+```
+A maior nota dentre os alunos que não entregaram o trabalho é: 
+```{r}
+nao_entregaram_trabalho <- as.data.frame(subset(df, trabalhos == 0))
+
+max(nao_entregaram_trabalho$notas)
+```
+Assuma que a média para aprovação direta é 70, alunos com média inferior a 40 tem reprovação direta, os demais estão em recuperação. A quantidade de alunos em recuperação que entregou os trabalhos é: 
+```{r}
+em_recuperacao <- as.data.frame(subset(df, notas < 70& notas >= 40))
+
+
+```
+
+ O desvio-padrão das notas dos alunos que entregaram os trabalhos é: 
+ 
+```{r}
+round(sd(entregaram_trabalho$notas),4)
+```
+ 
+ A variância amostral (S2
+), o desvio médio absoluto (DMA
+) e o segundo coeficiente de assimetria de Pearson (AS2
+) são medidas definidas, respectivamente, por
+
+S2=1n−1∑i=1n(xi−x¯)2,DMA=1n−1∑i=1n|xi−x¯|eAS2=3⋅x¯−MdS,
+
+em que x¯
+ é a média amostral, Md
+ é a mediana e |a|
+ corresponde ao módulo de a
+.
+
+Utilizando o básico de operações aritméricas em R calcule os valores de S2
+, DMA
+ e AS2
+. Considere o banco de dados Orange disponível no R para responder às questões abaixo, dê suas respostas utilizando quatro casas decimais.
+```{r}
+
+df <- Orange
+
+var(df$circumference)
+
+mad(df$circumference)
+
+
+
+```
+```{r}
+nivel_1 <- subset(df, Tree == 1)
+
+mediaa <- mean(nivel_1$age)
+medianaa <- mean(nivel_1$age)
+desvio_padraoo <- sd(nivel_1$age)
+
+indice_pearson_mediana <- 3 * (mediaa - medianaa)/desvio_padraoo
+indice_pearson_mediana
+
+mad(nivel_1$age)
+```
+```{r}
+df <- CO2
+
+
+var(df$uptake)
+
+```
+```{r}
+mad(df$uptake)
+
+chilled <- subset(df, Treatment == "chilled")
+
+mediaa <- mean(chilled$conc)
+medianaa <- mean(chilled$conc)
+desvio_padraoo <- sd(chilled$conc)
+
+indice_pearson_mediana <- 3 * (mediaa - medianaa)/desvio_padraoo
+indice_pearson_mediana
+
+n <- length(chilled$conc)
+media <- mean(chilled$conc)
+dma_exercicio <- sum(abs(chilled$conc - media)) / (n - 1)
+dma_exercicio
+```
+```{r}
+df <- airquality
+
+var(df$Wind)
+
+
+```
+```{r}
+n <- length(df$Wind)
+media <- mean(df$Wind)
+dma_exercicio <- sum(abs(df$Wind - media)) / (n - 1)
+round(dma_exercicio,4)
+```
+
+```{r}
+nivel_5 <- subset(df, Month == 5)
+mediaa <- mean(nivel_5$Temp,na.rm = T)
+medianaa <- median(nivel_5$Temp,na.rm = T)
+desvio_padraoo <- sd(nivel_5$Temp, na.rm = T)
+
+indice_pearson_mediana <- 3 * (mediaa - medianaa)/desvio_padraoo
+indice_pearson_mediana
+
+
+n <- length(nivel_5$Temp)
+media <- mean(nivel_5$Temp)
+dma_exercicio <- sum(abs(nivel_5$Temp- media)) / (n - 1)
+round(dma_exercicio,4)
+```
+
+```{r}
+notas <- c(
+  'João' = 42,
+  'Maria' = 99,
+  'José' = 81,
+  'Ana' = 88, 
+  'Pedro' = 85,
+  'Paula' = 86,
+  'Carlos' = 62, 
+  'Mariana' = 96,
+  'Fernando' = 87, 
+  'Luiza' = 70)
+
+trabalhos <- c(
+  'João' = FALSE,
+  'Maria' = TRUE,
+  'José' = TRUE,
+  'Ana' = TRUE, 
+  'Pedro' = TRUE,
+  'Paula' = TRUE,
+  'Carlos' = FALSE, 
+  'Mariana' = TRUE,
+  'Fernando' = TRUE, 
+  'Luiza' = TRUE)
+
+
+```
+
+A raiz quadrada da média das notas dos alunos é: 
+```{r}
+round(sqrt(mean(notas)), 4)
+```
+A mediana dos alunos que entregaram o trabalho é: 
+```{r}
+df <- cbind(notas, trabalhos)
+
+entregaram_trabalho <- as.data.frame(subset(df, trabalhos == 1)) 
+
+median(entregaram_trabalho$notas)
+```
+A maior nota dentre os alunos que não entregaram o trabalho é: 
+```{r}
+nao_entregaram_trabalho <- as.data.frame(subset(df, trabalhos == 0))
+
+max(nao_entregaram_trabalho$notas)
+```
+Assuma que a média para aprovação direta é 70, alunos com média inferior a 40 tem reprovação direta, os demais estão em recuperação. A quantidade de alunos em recuperação que entregou os trabalhos é: 
+```{r}
+em_recuperacao <- as.data.frame(subset(df, notas < 70& notas >= 40))
+
+
+```
+
+ O desvio-padrão das notas dos alunos que entregaram os trabalhos é: 
+ 
+```{r}
+round(sd(entregaram_trabalho$notas),4)
+```
