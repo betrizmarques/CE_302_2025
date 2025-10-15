@@ -155,3 +155,211 @@ media_tentativas
 hist(output)
 
 # Funções ----------------------------------------------------------------------
+
+# Funções encapsulam uma tarefa composta de várias instruções
+# Pegam valores de entrada e geram valores de saída
+# Permitem o reuso de código de uma forma enxuta
+
+# Exemplo:
+imc  <- function(peso, altura){
+  imc <- peso/altura^2
+  limits <- c(0,18.5, 25, 30, Inf)
+  labels <- c("Magreza", "Adequado", 
+              "Pré-obeso", "Obesidade")
+  classif <- labels[findInterval(imc, vec = limits)]
+  return(list(IMC = imc, Classificacao = classif))
+}
+imc(57, 1.75)
+
+# Estrutura da função: nome da função, argumentos formais, corpo e retorno.
+# Nome da função: verbo ou composto por verbo.
+# Argumentos: nomes apropriados, podem ser vetores, amtrizes, listas, etc, até
+# outras funções, podem ter valores default.
+# Retorno: importante retornar alguma coisa, se precisar retornar mais de um 
+#objeto sempre usar lista.
+# Colocar mensagens descritivas para erros, avisos e comentários
+# Evitar modificar variáveis fora do escopo da função
+
+# Exercício: Fórmula de Bhaskara
+
+calcula_bhaskara <- function(a, b = 1, c = 0){
+  delta <- b^2 - 4*a*c
+  x <- (-b + c(1, -1) * sqrt(delta))/ (2* a)
+  return(x)
+}
+
+args(calcula_bhaskara)
+formals(calcula_bhaskara)
+body(calcula_bhaskara)
+
+curve(2 * x^2 + x +0, from = -5, to = 5)
+abline(h = 0, col = "blue")
+
+x <- calcula_bhaskara(a = 2, b = -3, c = -3)
+x
+
+curve(2 * x^2 -  3* x -3, from = -5, to = 5)
+abline(h = 0, col = "blue") 
+abline(v = x, col = "green")
+
+
+
+# Tratamento de exceções
+# Usados quando se faz funções para usos gerais e uma maior audiência, faz com 
+# que a função se comunicque de forma clara ao usuário.
+
+# Prever desvios de uso po: variáveis com tipos incorretor, objetos com classe 
+# incorreta, indeterminação nos resultados, falha de convergência, arquivos/objetos
+# não encontrados
+
+# cat() e print(): imprimir conteúdo no console
+# message(): imprime mensagens neutras ao usuário
+# warning(): imprime mensagens de aviso, ela causa a saída warning
+calcula_bhaskara_2 <- function(a, b = 1, c = 0){
+  delta <- b^2 - 4*a*c
+  if (delta < 0){
+    return(c(NA_real_, NA_real_))
+  }
+  x <- (-b + c(1, -1) * sqrt(delta))/ (2* a)
+  return(x)
+}
+
+calcula_bhaskara(2,-3,3)
+calcula_bhaskara_2(2,-3,3)
+
+calcula_bhaskara_3 <- function(a, b = 1, c = 0){
+  if (a == 0){
+    message("o valor de 'a' deve ser diferente de 0")
+    return(c(NA_real_, NA_real_))
+  }
+  delta <- b^2 - 4*a*c
+  if (delta < 0){
+    return(c(NA_real_, NA_real_))
+  }
+  x <- (-b + c(1, -1) * sqrt(delta))/ (2* a)
+  return(x)
+}
+
+calcula_bhaskara_3(0,-3,3)
+suppressMessages(calcula_bhaskara_3(0,-3,3))
+
+# Exercício: Lançamento de dados
+
+joga_dados <- function(n_dados, n_max, n_simulacoes){
+  vetor_saida <- c()
+  for (i in 1:n_simulacoes){
+    tentativas <- 1
+    while (tentativas < n_max){
+      faces <- sample(1:6, n_dados, replace = T)
+      print(faces)
+      if (n_dados > 6){
+        faces_ordenado <- unique(sort(faces))
+      } else { 
+        faces_ordenado <- sort(faces)
+      }
+      print(faces_ordenado)
+      sequencia <- sum(ifelse(diff(faces_ordenado) == 1, TRUE, FALSE))
+      if (sequencia == (length(faces_ordenado) -1)) break
+      tentativas <- tentativas +1
+    }
+    vetor_saida[i] <- tentativas
+  }
+  return(lista = list(lacamentos = vetor_saida, media_lancamentos = mean(vetor_saida), indices <- which(vetor_saida ==1), n_indices = length(indices)))
+}
+
+joga_dados2 <- function(n_dados, n_max, n_simulacoes){
+  vetor_saida <- c()
+  for (i in 1:n_simulacoes){
+    tentativas <- 1
+    while (tentativas < n_max){
+      faces <- sample(1:6, n_dados, replace = T)
+      print(faces)
+      if (n_dados > 6){
+        faces <- unique(faces)
+        print(faces)
+      } 
+      sequencia <- sum(ifelse(diff(faces) == 1, TRUE, FALSE))
+      if (sequencia == (length(faces) -1)) break
+      tentativas <- tentativas +1
+    }
+    vetor_saida[i] <- tentativas
+  }
+  return(lista = list(lacamentos = vetor_saida, media_lancamentos = mean(vetor_saida), indices <- which(vetor_saida ==1), n_indices = length(indices)))
+}
+joga_dados2(n_dados = 10, n_max = 1000, n_simulacoes = 1000)
+
+# Aspectos avançados de funções 
+
+# Argumento com valor default
+calcula_imc  <- function(peso = 80, altura){
+  imc <- peso/altura^2
+  limits <- c(0,18.5, 25, 30, Inf)
+  labels <- c("Magreza", "Adequado", 
+              "Pré-obeso", "Obesidade")
+  classif <- labels[findInterval(imc, vec = limits)]
+  return(list(IMC = imc, Classificacao = classif))
+}
+calcula_imc(altura = 1.8)
+
+
+# Tratando exceções
+calcula_imc  <- function(peso = 80, altura){
+  if (altura <= 0) stop("Altura deve ser maior que 0")
+  if (peso < 0) stop("Peso deve ser maior que 0")
+  imc <- peso/altura^2
+  limits <- c(0,18.5, 25, 30, Inf)
+  labels <- c("Magreza", "Adequado", 
+              "Pré-obeso", "Obesidade")
+  classif <- labels[findInterval(imc, vec = limits)]
+  return(list(IMC = imc, Classificacao = classif))
+}
+calcula_imc(altura = 0)
+
+# Funções sem argumentos 
+calcula_imc_sem_args  <- function(){
+  if (altura <= 0) stop("Altura deve ser maior que 0")
+  if (peso < 0) stop("Peso deve ser maior que 0")
+  imc <- peso/altura^2
+  limits <- c(0,18.5, 25, 30, Inf)
+  labels <- c("Magreza", "Adequado", 
+              "Pré-obeso", "Obesidade")
+  classif <- labels[findInterval(imc, vec = limits)]
+  return(list(IMC = imc, Classificacao = classif))
+}
+
+calcula_imc_sem_args()
+
+peso <- 70
+altura <- 1.70 
+calcula_imc_sem_args()
+
+
+#Lazy evaluation
+calcula_imc_com_arg_extra  <- function(altura, peso = 80, altura2){
+  if (altura <= 0) stop("Altura deve ser maior que 0")
+  if (peso < 0) stop("Peso deve ser maior que 0")
+  imc <- peso/altura^2
+  limits <- c(0,18.5, 25, 30, Inf)
+  labels <- c("Magreza", "Adequado", 
+              "Pré-obeso", "Obesidade")
+  classif <- labels[findInterval(imc, vec = limits)]
+  return(list(IMC = imc, Classificacao = classif))
+}
+calcula_imc_com_arg_extra(altura = 1.9, altura2 = 1.8)
+
+# Uso dos 3 ...
+
+calcula_numero_imc <- function(peso, altura){
+  imc <- peso/altura^2
+  return(imc)
+}
+
+classifica_imc <- function(...){
+  imc <- calcula_numero_imc(...)
+  limits <- c(0, 18.5, 25, 30, Inf)
+  labels <- c("Magreza", "Adequado", 
+              "Pré-obeso", "Obesidade")
+  classif <- labels[findInterval(imc, limits)]
+  return(list(IMC = imc, Classificacao = classif))
+}
+classifica_imc(80, 1.98)
