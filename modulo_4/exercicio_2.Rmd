@@ -1,0 +1,53 @@
+---
+title: "Exercício 2"
+output: html_document
+date: "2025-11-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.  Utilizando o banco de dados `starwars` faça o que se pede:
+```{r}
+library(tidyverse)
+glimpse(starwars)
+```
+- Qual é o número total de espécies únicas presentes? Qual a frequência de indivíduos por espécie?
+```{r}
+starwars %>% 
+  summarise(n_distinct = n_distinct(species))
+
+```
+
+```{r}
+starwars %>% 
+  group_by(species) %>% 
+  summarise(n = n())
+```
+- Calcule a altura média de personagens masculinos e femininos.
+```{r}
+starwars %>% 
+  filter(sex %in% c("male", "female")) %>% 
+  group_by(sex) %>% 
+  summarise(altura_media = mean(height, na.rm = T))
+      
+```
+
+- Qual é o peso médio dos personagens de cada espécie para personagens masculinos?
+
+```{r}
+starwars %>% 
+  filter(sex == "male") %>% 
+  group_by(species) %>% 
+  summarise(peso_medio = mean(mass, na.rm = T))
+```
+
+- Para cada espécie presente na base de dados, identifique o personagem mais pesado e seu peso correspondente.
+```{r}
+starwars %>% 
+  group_by(species) %>% 
+  filter(mass == max(mass, na.rm = T)) %>% 
+  select(species, name, mass)
+```
+

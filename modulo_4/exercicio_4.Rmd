@@ -1,0 +1,27 @@
+---
+title: "Exercício 4"
+output: html_document
+date: "2025-11-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Utilizando os dados de `flights`, do pacote `{nycflights13}` , crie uma matriz que mostra o número de voos entre cada par de aeroportos.
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+
+flights %>% 
+  group_by(origin, dest) %>% 
+  summarise(n = n()) %>% 
+  pivot_wider(
+    names_from = origin,
+    values_from = n,
+    values_fill = 0
+  )
+```
+
+

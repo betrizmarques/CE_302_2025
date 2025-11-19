@@ -1,0 +1,38 @@
+---
+title: "Exercício 1"
+output: html_document
+date: "2025-11-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Utilizando o banco de dados `storms`, faça o que se pede:
+
+```{r}
+glimpse(storms)
+```
+
+- Filtre as observações cujo tipo de evento é `Tropical Depression`. Quantas observações existem?
+
+```{r}
+storms %>% 
+  filter(status == "tropical depression") %>% 
+  nrow()
+```
+- Filtre as observações cujo tipo de evento é `Tropical Depression` e a velocidade do vento é maior ou igual a 40. Quantas observações existem?
+
+```{r}
+storms %>% 
+  filter(status == "tropical depression" & wind >= 40) %>% 
+  nrow()
+```
+- Selecione as variáveis numéricas e ordene as observações pela variável `pressure` em ordem crescente
+
+```{r}
+storms %>% 
+  select_if(is.numeric) %>% 
+  arrange(pressure)
+```
+

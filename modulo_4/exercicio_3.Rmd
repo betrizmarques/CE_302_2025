@@ -1,0 +1,45 @@
+---
+title: "Exercício 3"
+output: html_document
+date: "2025-11-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Utilizando o banco de dados `car_crash` faça o que se pede:
+```{r}
+library(data.table)
+library(tidyverse)
+
+car_crash <- fread('Brazil Total highway crashes 2010 - 2023 (2).csv.gz') 
+
+glimpse(car_crash)
+```
+
+- Quais os meses do ano com maior número de acidentes fatais?
+```{r}
+car_crash %>% 
+  mutate(data = dmy(data)) %>% 
+  mutate(dia = day(data),
+         mes = month(data),
+         ano = year(data)) %>% 
+  select(data, ano, mes, mortos) %>% 
+  filter(mortos>0) %>% 
+  group_by(mes) %>% 
+  summarise(numero_acidentes_fatais = n()) %>% 
+  arrange(desc(numero_acidentes_fatais))
+```
+- Quais os dias da semana com maior número de acidentes fatais?
+```{r}
+car_crash %>% 
+  mutate(data = dmy(data)) %>% 
+  mutate(dia_da_semana = lubridate::wday(data, label = T, abbr = F)) %>% 
+  select(dia_da_semana, mortos) %>% 
+  filter(mortos > 0) %>% 
+  group_by(dia_da_semana) %>% 
+  summarise(numero_acidentes_fatais = n()) %>% 
+  arrange(desc(numero_acidentes_fatais))
+```
+

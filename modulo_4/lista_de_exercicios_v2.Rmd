@@ -1,0 +1,178 @@
+---
+title: "Lista de Exercícios"
+output:
+  pdf_document: default
+  html_document: default
+date: "2025-11-16"
+---
+
+## Questão 1
+
+Um entusiasta gastronômico está em uma jornada para explorar restaurantes listados no guia Michelin. O viajante começou sua aventura no Restaurante Piano 35 em Turin, Italy. Após saborear as delícias do restaurante, ele segue para a cidade mais próxima que abriga um restaurante reconhecido no guia Michelin.
+
+Para calcular a distância entre os restaurantes, utilizaremos a equação de Haversine, uma fórmula eficaz para medir distâncias entre pontos de latitude e longitude na superfície esférica da Terra.
+
+A equação de Haversine para calcular a distância ($d$) entre dois pontos na superfície de uma esfera (como a Terra) a partir das coordenadas de latitude, em radianos, ($\varphi_1$, $\varphi_1$) e longitude ($\lambda_1$, $\lambda_2$) é dada por
+
+
+\[
+d = 2r \arcsin\left(
+\sqrt{
+\sin^2\left(\frac{\varphi_2 - \varphi_1}{2}\right)
++ \cos\varphi_1 \cos\varphi_2 \sin^2\left(\frac{\lambda_2 - \lambda_1}{2}\right)
+}
+\right)
+\]
+
+em que r é o raio da Terra (aproximadamente 6,371 km). Neste contexto, responda as questões a seguir.
+
+1. Dica: Implemente a função haversine_distance para calcular a distância entre dois pontos na superfície da Terra. Verifique a necessidade de converter as coordenadas de latitude e longitude para radianos.
+```{r, results='hide', message=FALSE, warning=FALSE}
+
+library(tidyverse)
+library(magrittr)
+
+  haversine_distance  <- function(lat1, long1, lat2, long2){
+    
+  lat1_rad <- lat1 * pi / 180
+  lat2_rad <- lat2 * pi / 180
+  
+  dist_lat <- (lat2- lat1)  * pi / 180
+  dist_lon <- (long2 - long1)  * pi / 180
+  
+  d <- 2 * asin(sqrt((sin(dist_lat / 2))^2 +
+       cos(lat1_rad) * cos(lat2_rad) *
+       (sin(dist_lon / 2))^2)) * 6371
+
+  return(d)
+  }
+```
+
+2. Utilize o banco de dados michelin.csv para obter as informações necessárias.
+```{r}
+
+michelin <- read_csv("michelin.csv") %>% ##carrega os dados
+    separate(Award, c("star", "star_type"), sep = ",") %>% ##separa a variável em duas
+  separate(Location, c("city", "country"), sep = ", ")
+
+
+dados_rest_inicial <- michelin %>% 
+  filter(Name == "Gabelspiel") ## restaurante inicial
+
+michelin %<>% 
+  mutate(dist_rest_inicial = haversine_distance( ## aplica a função
+    lat1 = dados_rest_inicial$Latitude,
+    long1 = dados_rest_inicial$Longitude,
+    lat2 = michelin$Latitude, 
+    long2 = michelin$Longitude)) 
+
+```
+
+- Quantos quilômetros o entusiasta precisa viajar para visitar o próximo restaurante com 1 Star ?
+```{r}
+michelin %>% 
+  filter(star == "1 Star" & city != dados_rest_inicial$city) %>% 
+  filter(dist_rest_inicial == min(dist_rest_inicial)) %>% 
+  pull(dist_rest_inicial)
+```
+- Existe, no total, quantos restaurantes com 1, 2 ou 3 estrelas Michelin a uma distância de 100 km do restaurante inicial?
+
+```{r}
+vetor <- c("1 Star", "2 Stars", "3 Stars")
+
+michelin %>% 
+  filter(star %in% vetor & dist_rest_inicial <= 3000) %>% 
+  nrow()
+```
+- O estusiasta decidiu celebrar seu aniversário em um restaurante com pelo menos uma estrela Michelin. Ele pode gastar até 2 dinheiros locais em um próximo restaurante que esteja a uma distância máxima de 3000 km, fora da cidade inicial. Nesse contexto, ele deveria escolher um restaurante dentre quantos?
+
+```{r}
+michelin %>% 
+  filter(dist_rest_inicial <= 2000, star %in% vetor, str_length(Price) <= 2, 
+        city != dados_rest_inicial$city) %>% ## verifica todas as condições
+  nrow()
+  
+```
+
+- Caso o entusiasta queira saborear algo da culinária Italian Contemporary qual a distância mínima (em km) que ele precisará se deslocar?
+```{r}
+michelin %>% 
+  separate(Cuisine, c("cuisine_1", "cuisine_2"), sep = ", ") %>% 
+  filter((str_detect(cuisine_1, "^Country cooking$")| str_detect(cuisine_2, "^Country cooking$")) & city != dados_rest_inicial$city) %>% ## filtra por padrão de caracteres
+  summarise(dist_minima = min(dist_rest_inicial))
+```
+
+## Questão 2
+
+Para as perguntas a seguir, utilize o banco de dados proveninete do Tidytuesday de 2021, semana 48, que contém informações sobre a série de TV Dr. Who. Para carregar o banco, utilize a função abaixo.
+
+`tuesdata <- tidytuesdayR::tt_load(2021, week = 48)`
+
+Note que o resultado é uma lista contendo quatro objetos, cada um contendo um banco de dados. Os objetos são: `writers`, `directors`, `episodes` e `imdb.`
+
+```{r}
+library(tidyverse)
+library(magrittr)
+
+tuesdata <- tidytuesdayR::tt_load(2021, week = 48)
+
+```
+Caso necessário, junte os bancos utilizando apenas informações comuns à todos os bancos.
+
+```{r}
+dr_who <- left_join( tuesdata$writers, tuesdata$directors, by = "story_number") %>%
+  left_join(tuesdata$episodes, by = "story_number") %>% 
+  left_join(tuesdata$imdb, by = c("season_number" = "season", "episode_number" = "ep_num")) ##junta todas as bases
+
+glimpse(dr_who)
+```
+
+Responda as seguintes questões, considerando duas casas decimais.
+
+- A dupla de diretor e escritor formada por Joe Ahearne e Russell T Davies é responsável por quantos episódios?  
+
+```{r}
+dr_who %>% 
+  filter(director == "Rachel Talalay", writer == "Steven Moffat") %>% 
+  drop_na(episode_number, season_number) %>% ##filtra por episodios que foram considerados
+  nrow() 
+
+```
+
+- Somente em 2010 o escritor Steven Moffat escreveu mais de dois episódios. Quantos episódios ele escreveu neste ano? 
+```{r}
+dr_who %<>% 
+  mutate(first_aired = ymd(first_aired),
+         ano = year(first_aired)) ## extrai o ano
+
+dr_who %>% 
+  filter(writer == "Russell T Davies", ano == 2005) %>% 
+  drop_na(season_number, episode_number) %>% 
+  nrow()
+```
+
+- O escritor Stephen Thompson trabalhou na série por algum tempo. Quantos anos ele trabalhou na série? 
+```{r}
+dr_who %>% 
+  filter(writer == "Tom MacRae") %>% 
+  drop_na(season_number, episode_number) %>% 
+  summarise(qntd_anos = max(ano) - min(ano)) ## calcula diff de tempo
+```
+
+- Durante o tempo que o escritorStephen Thompson escreveu roteiros para Dr. Who, ele foi responsável por quantos roteiros? 
+
+```{r}
+dr_who %>% 
+  filter(writer == "Tom MacRae") %>% 
+  drop_na(season_number,episode_number) %>% 
+  summarise(n = n()) 
+
+```
+- O diretor Ben Wheatley dirigiu episódios com duração média de quantos minutos? 
+```{r}
+a <- dr_who %>% 
+  filter(director == "Daniel Nettheim") %>% 
+  drop_na(season_number, episode_number) %>% 
+  summarise(media_minutos = mean(duration, na.rm = T)) ##calcula a média
+```
+
